@@ -6,14 +6,18 @@ enum Attendee_Acite { IDLE, IN_EVENT, WITHDRAWN, UNDEFINED };
 
 
 struct Attendee {
-    int ID = -1;
+    size_t ID = 0 ;
     std::string name = "Invalid";
     Attendee_Acite active = UNDEFINED;
 
 };
 
+const size_t AttendeesLimit = 70; //The max capacity of attendees
 
-Attendee AttendeesList[100] = {  //The capacity of the attendees is 100
+
+
+
+Attendee AttendeesList[AttendeesLimit] = {  //The capacity of the attendees is 100
     {1, "Ahmed Hassan", IDLE},
     {2, "Omar Khalid", IN_EVENT},
     {3, "Youssef Ibrahim", WITHDRAWN},
