@@ -16,7 +16,7 @@ struct Event {
 const size_t EventsLimits = 10;
 
 
-Event events[10]= {
+Event events[EventsLimits]= {
     { 1, "Music Festival", 15, ACTIVE },
     { 2, "Tech Conference", 20, ACTIVE },
     { 3, "Art Expo", 30, CANCELED },

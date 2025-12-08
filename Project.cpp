@@ -1,8 +1,12 @@
 #include <iostream>
 #include <cstdlib>
+#include <string>
 #include "Attendees.h"
 #include "Events.h"
 #include "Registration.h"
+
+
+///////////////////////////////////////////////////////////////////////////////////////////// add a limit for the attendee ,events and registration
 
 void Menu()
 {
@@ -13,11 +17,14 @@ void Menu()
     std::cout << "4.Mark check-in for a registration.\n";
     std::cout << "5.Show event statistics.\n"; //show :1.capacity 2.regiters 3.percentage
     std::cout << "6.Show per-attendee list of registered events.\n";
-    std::cout << "7.Search attendees/events.\n";
-    std::cout << "9.Enable/Disable event.\n";
-    std::cout << "8.Exit\n";
+    std::cout << "7.Search attendees.\n";//add search by name2
+    std::cout << "8.manage attendee/event.\n";
+    std::cout << "9.show attendees/events.\n";
+    std::cout << "10.Exit\n";
 }
+
 ////////////////////////////////////////////////////////////////////////////////input checking if it is valid
+
 size_t ValidInput(size_t NotSmallerThan, size_t NotBiggerThan)
 {
     size_t option;
@@ -29,8 +36,26 @@ size_t ValidInput(size_t NotSmallerThan, size_t NotBiggerThan)
     };
     return option;
 }
-////////////////////////////////////////////////////////////////////////////////////////number of registers in event
 
+/////////////////////////////////////////????/////////////////////////////////////////// return menu
+
+void returnOptions(std::string condition="", std::string option2 = "", void (*function)()  = nullptr  )
+{
+    size_t ReturnOption = 0;
+    std::cout << condition << "\nEnter(1) to return to the main menu  " << option2 << std::endl;
+    ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
+    if (ReturnOption == 1)
+    {
+        return;// restart the programme
+    }
+    else
+    {
+        function();//start over 
+    }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////number of registers in event
 
 size_t RegPerEvent(size_t ID)
 {
@@ -64,7 +89,6 @@ Attendee_Active getAtendeeActiveStatus(size_t option)
     }
 }
 
-
 bool ID_Exists_attendees(size_t ID)
 {
     for (size_t i = 0; i < AttendeesLimit; i++)
@@ -77,7 +101,6 @@ bool ID_Exists_attendees(size_t ID)
     return false;
 
 }
-
 
 size_t available_index_attendees()
 {
@@ -93,13 +116,13 @@ size_t available_index_attendees()
     return AvailableIndex;
 }
 
-
 void addattendees()
 {
     size_t ID;
     std::string name;
     size_t active_option;
     Attendee_Active active;
+    void (*function)() = &addattendees;
 
 
 
@@ -109,32 +132,24 @@ void addattendees()
 
     ID = ValidInput(1, 999999999);
 
-    if (ID_Exists_attendees(ID))
+     if (!(AttendeesList[AttendeesLimit-1].ID ==0))//last element / 0 is the defaul if it does change that means the list is full
     {
-        size_t ReturnOption = 0;
-
-        std::cout << "This ID already exists!\nEnter (1) to return to the main menu or (2) to add another attendees\n";
-        ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
-        if (ReturnOption == 1)
-        {
-            return Menu();// restart the programme
-        }
-        else
-        {
-            return addattendees();//start over 
-        }
-
+        returnOptions("There is no Space", "", function);
     }
-    std::cout << "Enter the name: ";
-    std::cin >> name;
-    std::cout << "Enter the status (0: IDLE, 1: IN_EVENT, 2: WITHDRAWN, 3: UNDEFINED): ";
-    active_option = ValidInput(0, 3);
-
-    active = getAtendeeActiveStatus(active_option);
-
-
-    AttendeesList[available_index_attendees()] = {ID, name, active};
-    
+    else if (ID_Exists_attendees(ID))
+    {
+        returnOptions("ID already exists","or (2) to add another attendee", function);
+    }
+    else
+    {
+        std::cout << "Enter the name: ";
+        std::cin >> name;
+        std::cout << "Enter the status (0: IDLE, 1: IN_EVENT, 2: WITHDRAWN, 3: UNDEFINED): ";
+        active_option = ValidInput(0, 3);
+        active = getAtendeeActiveStatus(active_option);
+        AttendeesList[available_index_attendees()] = { ID, name, active };
+        returnOptions("Done!", "or (2) to add another attendee", function);
+    }
 
 }
 
@@ -153,7 +168,6 @@ bool ID_Exists_events(size_t ID)
 
 }
 
-
 size_t available_index_events()
 {
     size_t AvailableIndex = EventsLimits + 1; // +1 <-- to make the index out of range so it doesn't return a random index(more likely to be the last one)
@@ -167,7 +181,6 @@ size_t available_index_events()
     }
     return AvailableIndex;
 }
-
 
 Event_Active getEventActiveStatus(size_t option)
 {
@@ -192,48 +205,50 @@ void addevents()
     size_t capacity;
     Event_Active active;
     size_t active_option;
+    void (*function)() = &addevents;
 
     std::cout << "Enter the event ID: ";
     ID = ValidInput(1, 999999999);
 
+    if (events[EventsLimits-1].ID != 0) // if the last element is taken means its full
+    {
+        returnOptions("There is no space!"," ",function);
+    }
+
+
     if (ID_Exists_events(ID))
     {
-        size_t ReturnOption = 0;
-
-        std::cout << "This ID already exists!\nEnter (1) to return to the main menu or (2) to add another attendees\n";
-        ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
-        if (ReturnOption == 1)
-        {return Menu();}// restart the programme
-        else{return addevents();}//start over 
+        returnOptions("This ID already exists!", "or (2) to add another event", function);
 
     }
-    std::cout << "Enter the title: ";
-    std::cin >> title;
-    std::cout << "Enter the status (0: ACTIVE, 1: NOT_ACTIVE): ";
-    active_option = ValidInput(0, 1);
+    else 
+    {
+        std::cout << "Enter the title: ";
+        std::cin >> title;
+        std::cout << "Enter the status (0: ACTIVE, 1: NOT_ACTIVE): ";
+        active_option = ValidInput(0, 1);
 
-    active = getEventActiveStatus(active_option);
+        active = getEventActiveStatus(active_option);
 
-    std::cout << "Enter the capacity: ";
-    capacity = ValidInput(0, AttendeesLimit);
+        std::cout << "Enter the capacity: ";
+        capacity = ValidInput(0, AttendeesLimit);
 
-    events[available_index_events()] = { ID, title, capacity,active };
+        events[available_index_events()] = { ID, title, capacity,active };
 
-
+        returnOptions("Done!", "or (2) to add another event", function);
+    }
 }
-
-
-
-
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////Register attendee for event
 
+size_t eventID_index(size_t eventID)
+{
+    for(int i = 0;i < EventsLimits;i++)
+    {
+        if (eventID == events[i].ID) {return i;}
+    }
+    return 0;
+}
 
 bool Registercheck(size_t attendeeID, size_t eventID, Regist_status status, Registration arr[])//check if the user is enrolled or not
 {
@@ -265,210 +280,112 @@ void RegisterAttendee()
     size_t attendeeID;
     size_t eventID;
     Regist_status status = NotEnrolled;
+    void (*function)() = &RegisterAttendee;
 
 
     std::cout << "Enter the attendee ID: ";
     attendeeID = ValidInput(0, 9999999999);
-    if (!(ID_Exists_attendees(attendeeID)))
-    {
-        size_t ReturnOption = 0;
-        std::cout << "This ID doesn't exist!\nEnter (1) to return to the main menu or (2) to register another attendees\n";
-        ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
-        if (ReturnOption == 1) { return Menu(); }// restart the programme
-        else { return RegisterAttendee(); }//start over 
-    }
-
-
 
     std::cout << "Enter event ID: ";
     eventID = ValidInput(0, 9999999999);
-    if (!(ID_Exists_events(eventID)))
-    {
-        size_t ReturnOption = 0;
-        std::cout << "This event ID doesn't exist!\nEnter (1) to return to the main menu or (2) to register another attendees\n";
-        ReturnOption = ValidInput(1, 2);
-        if (ReturnOption == 1)
-        {
-            return Menu();
-        }// restart the programme
-        else { return RegisterAttendee(); }//start over 
-    }
-
 
     
-    if (Registercheck(attendeeID, eventID, status, registrations))
+    if (!(ID_Exists_attendees(attendeeID)))
     {
-        size_t ReturnOption = 0;
-        std::cout << "Already Enrolled!\nEnter (1) to return to the main menu or (2) to register another attendees\n";
-        ReturnOption = ValidInput(1, 2);
-        if (ReturnOption == 1)
-        {
-            return Menu();
-        }// restart the programme
-        else { return RegisterAttendee(); }//start over 
-
+        returnOptions("This ID doesn't exist!", "or (2) to register another attendees", function);
+    }
+    
+    else if (!(ID_Exists_events(eventID)))
+    {
+        returnOptions("This event ID doesn't exist!", "or (2) to register another attendees", function);
     }
 
-    registrations[available_index_rig()] = {attendeeID,eventID, status };
+    else if (Registercheck(attendeeID, eventID, status, registrations))
+    {
+        returnOptions("Already Enrolled!", "or (2) to register another attendees", function);
 
+    }
+    else if(RegPerEvent(eventID) == events[eventID_index(eventID)].capacity)
+    {
+        returnOptions("This event is full!", "or (2) to register another attendees", function);
+    }
+    else {
+        status = Enrolled;
+        registrations[available_index_rig()] = { attendeeID,eventID, status };
+        returnOptions("Done!", "or (2) to register another attendees", function);
+    }
 }
 
-
-
-
-
-
 //////////////////////////////////////////////////////////check if enrolled
-
-
-
-
 
 void Erolled()
 {
     size_t attendeeID;
     size_t eventID;
     Regist_status status = NotEnrolled;
+    void (*function)() = &Erolled;
+
+
     std::cout << "Enter the attendee ID: ";
     attendeeID = ValidInput(0, 9999999999);
     if (!(ID_Exists_attendees(attendeeID)))
     {
-        size_t ReturnOption = 0;
-        std::cout << "This ID doesn't exist!\nEnter (1) to return to the main menu or (2) to check another attendees\n";
-        ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
-        if (ReturnOption == 1) { return Menu(); }// restart the programme
-        else { return Erolled(); }//start over 
+        returnOptions("This ID doesn't exist!","or (2) to check another attendees",function);
     }
 
 
-
-    std::cout << "Enter event ID: ";
-    eventID = ValidInput(0, 9999999999);
-    if (!(ID_Exists_events(eventID)))
-    {
-        size_t ReturnOption = 0;
-        std::cout << "This event ID doesn't exist!\nEnter (1) to return to the main menu or (2) to check another attendees\n";
-        ReturnOption = ValidInput(1, 2);
-        if (ReturnOption == 1)
+    else {
+        std::cout << "Enter event ID: ";
+        eventID = ValidInput(0, 9999999999);
+        if (!(ID_Exists_events(eventID)))
         {
-            return Menu();
-        }// restart the programme
-        else { return Erolled(); }//start over 
-    }
+            returnOptions("This event ID doesn't exist!", "or (2) to check another attendees", function);
+        }
 
-    if (Registercheck(attendeeID, eventID, status, registrations))
-    {
-        size_t ReturnOption = 0;
-        std::cout << "Enrolled!\nEnter (1) to return to the main menu or (2) to check another attendees\n";
-        ReturnOption = ValidInput(1, 2);
-        if (ReturnOption == 1)
+        else if (Registercheck(attendeeID, eventID, status, registrations))
         {
-            return Menu();
-        }// restart the programme
-        else { return Erolled(); }//start over 
-
-    }
-    if (!(Registercheck(attendeeID, eventID, status, registrations)))
-    {
-        size_t ReturnOption = 0;
-        std::cout << "Not Enrolled!\nEnter (1) to return to the main menu or (2) to check another attendees\n";
-        ReturnOption = ValidInput(1, 2);
-        if (ReturnOption == 1)
+            returnOptions("Enrolled!", "or (2) to check another attendees", function);
+        }
+        else if (!(Registercheck(attendeeID, eventID, status, registrations)))
         {
-            return Menu();
-        }// restart the programme
-        else { return Erolled(); }//start over 
-
+            returnOptions("Not Enrolled!", "or (2) to check another attendees", function);
+        }
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ////////////////////////////////////////////////////////////////events statistics
-
-
-size_t eventID_index(size_t eventID)
-{
-    for(int i = 0;i < EventsLimits;i++)
-    {
-        if (eventID == events[i].ID) {return i;}
-    }
-}
-
-
 
 void evenstat()
 {
     size_t eventID = 0;
+    void (*function)() = &evenstat;
 
     std::cout << "Enter event ID to check: ";
     eventID = ValidInput(1, 999999999999);
 
     if (!(ID_Exists_events(eventID)))
     {
-        size_t ReturnOption = 0;
-        std::cout << "This event ID doesn't exist!\nEnter (1) to return to the main menu or (2) to check another event\n";
-        ReturnOption = ValidInput(1, 2);
-        if (ReturnOption == 1)
-        {
-            return Menu();
-        }// restart the programme
-        else { return evenstat(); }//start over 
+        returnOptions("This event ID doesn't exist!", "or (2) to check another event", function);
     }
 
-
-    std::cout << "The capacity: " << events[eventID_index(eventID)].capacity << std::endl;
-    std::cout << "The Attendance: " << RegPerEvent(eventID)<<std::endl;
-    std::cout << "Attendance Rate: " << (float(RegPerEvent(eventID))/ float(events[eventID_index(eventID)].capacity))*100 << "%" << std::endl; // add the number of register for event
-
-
-    size_t ReturnOption = 0;
-    std::cout << "Done!\nEnter (1) to return to the main menu or (2) to Check another event\n";
-    ReturnOption = ValidInput(1, 9999999999);
-    if (ReturnOption == 1)
-    {
-        return Menu();
-    }// restart the programme
-    else { return evenstat(); }//start over 
-
+    else {
+        std::cout << "Title: " << events[eventID_index(eventID)].title << std::endl;
+        std::cout << "The capacity: " << events[eventID_index(eventID)].capacity << std::endl;
+        std::cout << "The Attendance: " << RegPerEvent(eventID) << std::endl;
+        std::cout << "Attendance Rate: " << (float(RegPerEvent(eventID)) / float(events[eventID_index(eventID)].capacity)) * 100 << "%" << std::endl; // add the number of register for event
+        returnOptions("Done!", "or (2) to check another event", function);
+    }
 }
-    
-
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////// the attendee registerations
-
-
-
-
 
 void ListofEnrolledEvents()
 {
     size_t attendeeID = 0;
     size_t numOfenrolled = 1;
+    void (*function)() = &ListofEnrolledEvents;
+    
+    std::cout << "Enter the ID: ";
     attendeeID = ValidInput(1, 9999999999);
     
     for (int i = 0; i < RegistrationLimit;i++)
@@ -480,78 +397,234 @@ void ListofEnrolledEvents()
 
         }
     }
-
-    size_t ReturnOption = 0;
-    std::cout << "Done!\nEnter (1) to return to the main menu or (2) to Check another event\n";
-    ReturnOption = ValidInput(1, 9999999999);
-    if (ReturnOption == 1)
-    {
-        return Menu();
-    }// restart the programme
-    else { return evenstat(); }//start over 
-         
+    returnOptions("Done!", "or (2) to check another event", function);        
 }
-
-
-
-
-
-
 
 /////////////////////////////////////////////////////////////search
 
+std::string attendeeNameByID(size_t ID)
+{
+    for(int i =0;i< AttendeesLimit;i++)
+    {
+        if(ID == AttendeesList[i].ID)
+        {
+            return AttendeesList[i].name;
+        }
+    }
+   return "Not found";
+}
 
+std::string returnAttendeeActive(Attendee_Active ID)
+{
+    if (AttendeesList[ID].active == IDLE) { return "IDLE"; }
+    else if (AttendeesList[ID].active == IN_EVENT) { return "IN_EVENT"; }
+    else if (AttendeesList[ID].active == WITHDRAWN) { return "WITHDRAWN"; }
+    else { return "UNDEFINED"; }
+
+}
+
+size_t attendeeIndexByID(size_t ID)
+{
+    for (int i = 0; i < AttendeesLimit; i++)
+    {
+        if (ID == AttendeesList[i].ID)
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+void EnrolledEvents(size_t ID)
+{
+    int count = 1;
+    for (int i = 0; i<RegistrationLimit;i++)
+    {
+        if(registrations[i].attendeeID == ID &&
+            registrations[i].status==Enrolled)
+        {
+            std::cout << count<<". "<< events[eventID_index(registrations[i].eventID)].title << std::endl;
+            count++;
+        }
+
+    }
+    if (count==1)
+    {
+        std::cout << "Not Enrolled in any event!"<<std::endl;
+    }
+}
 
 void attendeeSearch()
 {
+    void (*function)() = &attendeeSearch;
     size_t ID = 0;
-    std::cout << "Enter the ID";
+    std::cout << "Enter the ID: ";
     ID = ValidInput(1, 99999999);
 
     if (!(ID_Exists_attendees(ID)))
     {
-        size_t ReturnOption = 0;
-        std::cout << "This ID doesn't exist!\nEnter (1) to return to the main menu or (2) to check another attendees\n";
-        ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
-        if (ReturnOption == 1) { return Menu(); }// restart the programme
-        else { return Erolled(); }//start over 
+        returnOptions("This ID doesn't exist!", "or (2) to check another attendees", function);
+
     }
 
-    for ()
 
+    std::cout << "Name: "<<attendeeNameByID(ID)<<std::endl;
+    std::cout << "Status: " << returnAttendeeActive(AttendeesList[attendeeIndexByID(ID)].active) << std::endl;
+    std::cout << "Enrolled Events:"<<std::endl;
+    EnrolledEvents(ID);
+
+
+
+    returnOptions("Done!", "or (2) to check another attendees", function);
     
 }
 
-void search()
+//////////////////////////////////////////////Enable/Disable
+
+
+void manageEvent()
 {
-    size_t option;
-    std::cout << "1.For Attendee.\n2.For Event";
-    option = ValidInput(1, 2);
-    if(option == 1)
+
+    size_t ID = 0;
+    void (*function)() = &manageEvent;
+    size_t managEventOption;
+    size_t choice = 0;
+
+    std::cout << "Enter (1) for attendee or (2) for events: ";
+    choice = ValidInput(1, 2);
+
+    if (choice ==1)//attendee manage
     {
-        
+        std::cout << "Enter attendee ID: ";
+        ID = ValidInput(1, 9999999999);
+
+        if (!(ID_Exists_attendees(ID)))
+        {
+            returnOptions("This ID doesn't exist!", "or (2) to check another event", function);
+        }
+        else if (AttendeesList[attendeeIndexByID(ID)].active == IDLE)
+        {
+            std::cout << "This attendee is IDLE.\npress (1) to Go in event it or (2) to withdraw: " << std::endl;
+            managEventOption = ValidInput(1, 2);
+            if (managEventOption == 1)
+            {
+                AttendeesList[attendeeIndexByID(ID)].active = IN_EVENT;
+            }
+            else
+            {
+                AttendeesList[attendeeIndexByID(ID)].active = WITHDRAWN;
+            }
+        }
+        else if (AttendeesList[attendeeIndexByID(ID)].active == IN_EVENT)
+        {
+            std::cout << "This event is active.\npress (1) to go Idle or (2) to withdraw: " << std::endl;
+            managEventOption = ValidInput(1, 2);
+            if (managEventOption == 1)
+            {
+                AttendeesList[attendeeIndexByID(ID)].active = IDLE;
+            }
+            else
+            {
+                AttendeesList[attendeeIndexByID(ID)].active = WITHDRAWN;
+            }
+        }
+        else
+        {
+            std::cout << "This attendee was withdrawn or undefined" << std::endl;
+        }
+
+        returnOptions("Done!", "or (2) to manage menu", function);
+    }
+
+
+    else {
+        std::cout << "Enter Event ID: ";
+        ID = ValidInput(1, 9999999999);
+
+        if (!(ID_Exists_events(ID)))
+        {
+            returnOptions("This event ID doesn't exist!", "or (2) to check another event", function);
+        }
+
+
+        else if (events[eventID_index(ID)].active == ACTIVE)
+        {
+            std::cout << "This event is active.\npress (1) to disactivate it or (2) to cancel it" << std::endl;
+            managEventOption = ValidInput(1, 2);
+            if (managEventOption == 1)
+            {
+                events[eventID_index(ID)].active = NOT_ACTIVE;
+            }
+            else
+            {
+                events[eventID_index(ID)].active = CANCELED;
+            }
+        }
+        else if (events[eventID_index(ID)].active == NOT_ACTIVE)
+        {
+            std::cout << "This event is not active.\npress (1) to activate it or (2) to cancel it" << std::endl;
+            managEventOption = ValidInput(1, 2);
+            if (managEventOption == 1)
+            {
+                events[eventID_index(ID)].active = ACTIVE;
+            }
+            else
+            {
+                events[eventID_index(ID)].active = CANCELED;
+            }
+        }
+        else
+        {
+            std::cout << "This event was canceled" << std::endl;
+        }
+
+        returnOptions("Done!", "or (2) to manage menu", function);
+    }
+
+}
+
+///////////////////////////////////////////////////////show events or attendees
+
+
+std::string returneventsActive(Event_Active ID)
+{
+    if (events[ID].active == ACTIVE) { return "ACTIVE"; }
+    else if (events[ID].active == NOT_ACTIVE) { return "NOT_ACTIVE"; }
+    else{ return "CANCELED"; }
+
+}
+
+void show()
+{
+    void (*function)() = &show;
+    size_t choice = 0;
+    std::cout << "Enter (1) for attendees or (2) for events: ";
+    choice = ValidInput(1, 2);
+    if (choice==1)
+    {
+        std::cout << "ID     Name     Active"<<std::endl;
+        int i = 0;
+        while (AttendeesList[i].ID !=0 && i < AttendeesLimit)
+        {
+            std::cout << AttendeesList[i].ID<<"     "<< AttendeesList[i].name<<"     "<< returnAttendeeActive(AttendeesList[i].active) <<std::endl;
+            i++;
+        }
+        returnOptions("Done", " or (2) to show another attendees/events", function);
+    }
+    else 
+    {
+        std::cout << "ID     Title        Capacity     Active" << std::endl;
+        int i = 0;
+        while (events[i].ID != 0 && i < EventsLimits)
+        {
+            std::cout << events[i].ID << "     " << events[i].title << "          " << events[i].capacity<< "     " << returneventsActive(events[i].active) << std::endl;
+            i++;
+        }
+        returnOptions("Done", " or (2) to show another attendees/events", function);
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////////////
-
+////////////////////////////////////////////////////
 
 int main()
 {
@@ -559,8 +632,8 @@ int main()
     {
         system("cls"); // Clears the console on Windows
         Menu();
-        size_t option = 9;
-        option = ValidInput(1, 9);
+        size_t option = 0;
+        option = ValidInput(1, 10);
 
         if (option == 1)
         {
@@ -588,7 +661,15 @@ int main()
         }
         else if (option == 7)
         {
-            search();
+            attendeeSearch();
+        }
+        else if(option == 8)
+        {
+            manageEvent();
+        }
+        else if(option == 9)
+        {
+            show();
         }
         else
         {
@@ -599,6 +680,3 @@ int main()
 
 
 }
-
-
-// note:add availability function to returnn bool if the array is full or not
