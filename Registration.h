@@ -9,9 +9,12 @@ struct Registration {
 };
 
 
-
+// How do you know the limit of registrations?
+// where are they defined? No includes here?
 const size_t RegistrationLimit = AttendeesLimit * EventsLimits;
 
+
+// Again you are creating a global array in a header file, is it really needed here? and why?
 Registration registrations[RegistrationLimit] =  {
     {1, 1, Enrolled},
     {1, 2, Enrolled},

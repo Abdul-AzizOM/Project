@@ -2,6 +2,8 @@
 #include <string>
 #include <iostream>
 
+// This file lacks comments as well
+
 enum Attendee_Active { IDLE, IN_EVENT, WITHDRAWN, UNDEFINED };
 
 
@@ -12,10 +14,13 @@ struct Attendee {
 
 };
 
+// Header file conatin a global value in the middle of it
+// Think if you really need it and if this is the correct place for it.
 const size_t AttendeesLimit = 70; //The max capacity of attendees
 
 
-
+// Seems you are using header files for creating data? that is not the right way to do it.
+// You should use source files for that unless this is a must have fixed data
 
 Attendee AttendeesList[AttendeesLimit] = {  //The capacity of the attendees is 100
     {1, "Ahmed", IDLE},

@@ -5,7 +5,8 @@
 #include "Events.h"
 #include "Registration.h"
 
-
+// The comment line is too long, consider screen width for your team
+// -------------------------------------------------------------------  
 ///////////////////////////////////////////////////////////////////////////////////////////// add a limit for the attendee ,events and registration
 
 void Menu()
@@ -39,6 +40,9 @@ size_t ValidInput(size_t NotSmallerThan, size_t NotBiggerThan)
 
 /////////////////////////////////////////????/////////////////////////////////////////// return menu
 
+// strings are passed by value here, consider passing by const reference to avoid unnecessary copies
+// there are better ways to pass functions, consider using std::function.
+// also this project size doesn't need a function pointer, you can just call the function directly in the main loop
 void returnOptions(std::string condition="", std::string option2 = "", void (*function)()  = nullptr  )
 {
     size_t ReturnOption = 0;
@@ -404,6 +408,7 @@ void ListofEnrolledEvents()
 
 std::string attendeeNameByID(size_t ID)
 {
+	// Notation ++i is generally preferred over i++ for loop counters
     for(int i =0;i< AttendeesLimit;i++)
     {
         if(ID == AttendeesList[i].ID)
@@ -454,6 +459,7 @@ void EnrolledEvents(size_t ID)
     }
 }
 
+// Logic is over engineered here, you can just call the function directly in the main loop
 void attendeeSearch()
 {
     void (*function)() = &attendeeSearch;
@@ -467,7 +473,7 @@ void attendeeSearch()
 
     }
 
-
+	// Do you need to call attendeeIndexByID twice? you can store the result in a variable
     std::cout << "Name: "<<attendeeNameByID(ID)<<std::endl;
     std::cout << "Status: " << returnAttendeeActive(AttendeesList[attendeeIndexByID(ID)].active) << std::endl;
     std::cout << "Enrolled Events:"<<std::endl;
@@ -493,9 +499,12 @@ void manageEvent()
     std::cout << "Enter (1) for attendee or (2) for events: ";
     choice = ValidInput(1, 2);
 
+	// Too long function, consider breaking it into smaller functions
+	// I am sure the logic could be simplified as well
     if (choice ==1)//attendee manage
     {
         std::cout << "Enter attendee ID: ";
+		// why 9999999999?
         ID = ValidInput(1, 9999999999);
 
         if (!(ID_Exists_attendees(ID)))
