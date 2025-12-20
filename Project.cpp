@@ -1,13 +1,15 @@
 #include <iostream>
 #include <cstdlib>
+#include <functional>
+
 #include <string>
 #include "Attendees.h"
 #include "Events.h"
 #include "Registration.h"
 
-// The comment line is too long, consider screen width for your team
-// -------------------------------------------------------------------  
-///////////////////////////////////////////////////////////////////////////////////////////// add a limit for the attendee ,events and registration
+
+// -----------------------------------------------------  
+// add a limit for the attendee ,events and registration
 
 void Menu()
 {
@@ -24,7 +26,8 @@ void Menu()
     std::cout << "10.Exit\n";
 }
 
-////////////////////////////////////////////////////////////////////////////////input checking if it is valid
+// ----------------------------------------------------- 
+//input checking if it is valid
 
 size_t ValidInput(size_t NotSmallerThan, size_t NotBiggerThan)
 {
@@ -38,16 +41,16 @@ size_t ValidInput(size_t NotSmallerThan, size_t NotBiggerThan)
     return option;
 }
 
-/////////////////////////////////////////????/////////////////////////////////////////// return menu
+// ----------------------------------------------------- 
+//return menu
 
 // strings are passed by value here, consider passing by const reference to avoid unnecessary copies
-// there are better ways to pass functions, consider using std::function.
 // also this project size doesn't need a function pointer, you can just call the function directly in the main loop
-void returnOptions(std::string condition="", std::string option2 = "", void (*function)()  = nullptr  )
+void returnOptions(std::string condition="", std::string option2 = "", std::function<void()> function)
 {
     size_t ReturnOption = 0;
     std::cout << condition << "\nEnter(1) to return to the main menu  " << option2 << std::endl;
-    ReturnOption = ValidInput(1, 2); // future plan :make a third option to go to the id that exists
+    ReturnOption = ValidInput(1, 2); 
     if (ReturnOption == 1)
     {
         return;// restart the programme
@@ -59,7 +62,8 @@ void returnOptions(std::string condition="", std::string option2 = "", void (*fu
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////number of registers in event
+// ----------------------------------------------------- 
+//number of registers in event
 
 size_t RegPerEvent(size_t ID)
 {
@@ -71,7 +75,8 @@ size_t RegPerEvent(size_t ID)
     return count;
 }
 
-////////////////////////////////////////////////////////////////////////////////adding attendees
+// ----------------------------------------------------- 
+//adding attendees
 
 Attendee_Active getAtendeeActiveStatus(size_t option)
 {
@@ -126,7 +131,7 @@ void addattendees()
     std::string name;
     size_t active_option;
     Attendee_Active active;
-    void (*function)() = &addattendees;
+
 
 
 
@@ -138,11 +143,11 @@ void addattendees()
 
      if (!(AttendeesList[AttendeesLimit-1].ID ==0))//last element / 0 is the defaul if it does change that means the list is full
     {
-        returnOptions("There is no Space", "", function);
+        returnOptions("There is no Space", "", addattendees);
     }
     else if (ID_Exists_attendees(ID))
     {
-        returnOptions("ID already exists","or (2) to add another attendee", function);
+        returnOptions("ID already exists","or (2) to add another attendee", addattendees);
     }
     else
     {
@@ -152,12 +157,13 @@ void addattendees()
         active_option = ValidInput(0, 3);
         active = getAtendeeActiveStatus(active_option);
         AttendeesList[available_index_attendees()] = { ID, name, active };
-        returnOptions("Done!", "or (2) to add another attendee", function);
+        returnOptions("Done!", "or (2) to add another attendee", addattendees);
     }
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////add event
+// ----------------------------------------------------- 
+//add event
 
 bool ID_Exists_events(size_t ID)
 {
@@ -209,20 +215,19 @@ void addevents()
     size_t capacity;
     Event_Active active;
     size_t active_option;
-    void (*function)() = &addevents;
 
     std::cout << "Enter the event ID: ";
     ID = ValidInput(1, 999999999);
 
     if (events[EventsLimits-1].ID != 0) // if the last element is taken means its full
     {
-        returnOptions("There is no space!"," ",function);
+        returnOptions("There is no space!"," ", addevents);
     }
 
 
     if (ID_Exists_events(ID))
     {
-        returnOptions("This ID already exists!", "or (2) to add another event", function);
+        returnOptions("This ID already exists!", "or (2) to add another event", addevents);
 
     }
     else 
@@ -239,15 +244,16 @@ void addevents()
 
         events[available_index_events()] = { ID, title, capacity,active };
 
-        returnOptions("Done!", "or (2) to add another event", function);
+        returnOptions("Done!", "or (2) to add another event", addevents);
     }
 }
 
-//////////////////////////////////////////////////////////////Register attendee for event
+// ----------------------------------------------------- 
+//Register attendee for event
 
 size_t eventID_index(size_t eventID)
 {
-    for(int i = 0;i < EventsLimits;i++)
+    for(int i = 0;i < EventsLimits;++i)
     {
         if (eventID == events[i].ID) {return i;}
     }
@@ -284,7 +290,6 @@ void RegisterAttendee()
     size_t attendeeID;
     size_t eventID;
     Regist_status status = NotEnrolled;
-    void (*function)() = &RegisterAttendee;
 
 
     std::cout << "Enter the attendee ID: ";
@@ -296,45 +301,45 @@ void RegisterAttendee()
     
     if (!(ID_Exists_attendees(attendeeID)))
     {
-        returnOptions("This ID doesn't exist!", "or (2) to register another attendees", function);
+        returnOptions("This ID doesn't exist!", "or (2) to register another attendees", RegisterAttendee);
     }
     
     else if (!(ID_Exists_events(eventID)))
     {
-        returnOptions("This event ID doesn't exist!", "or (2) to register another attendees", function);
+        returnOptions("This event ID doesn't exist!", "or (2) to register another attendees", RegisterAttendee);
     }
 
     else if (Registercheck(attendeeID, eventID, status, registrations))
     {
-        returnOptions("Already Enrolled!", "or (2) to register another attendees", function);
+        returnOptions("Already Enrolled!", "or (2) to register another attendees", RegisterAttendee);
 
     }
     else if(RegPerEvent(eventID) == events[eventID_index(eventID)].capacity)
     {
-        returnOptions("This event is full!", "or (2) to register another attendees", function);
+        returnOptions("This event is full!", "or (2) to register another attendees", RegisterAttendee);
     }
     else {
         status = Enrolled;
         registrations[available_index_rig()] = { attendeeID,eventID, status };
-        returnOptions("Done!", "or (2) to register another attendees", function);
+        returnOptions("Done!", "or (2) to register another attendees", RegisterAttendee);
     }
 }
 
-//////////////////////////////////////////////////////////check if enrolled
+// ----------------------------------------------------- 
+//check if enrolled
 
-void Erolled()
+void CheckIfEnrolled()
 {
     size_t attendeeID;
     size_t eventID;
     Regist_status status = NotEnrolled;
-    void (*function)() = &Erolled;
 
 
     std::cout << "Enter the attendee ID: ";
     attendeeID = ValidInput(0, 9999999999);
     if (!(ID_Exists_attendees(attendeeID)))
     {
-        returnOptions("This ID doesn't exist!","or (2) to check another attendees",function);
+        returnOptions("This ID doesn't exist!","or (2) to check another attendees", CheckIfEnrolled);
     }
 
 
@@ -343,21 +348,22 @@ void Erolled()
         eventID = ValidInput(0, 9999999999);
         if (!(ID_Exists_events(eventID)))
         {
-            returnOptions("This event ID doesn't exist!", "or (2) to check another attendees", function);
+            returnOptions("This event ID doesn't exist!", "or (2) to check another attendees", CheckIfEnrolled);
         }
 
         else if (Registercheck(attendeeID, eventID, status, registrations))
         {
-            returnOptions("Enrolled!", "or (2) to check another attendees", function);
+            returnOptions("Enrolled!", "or (2) to check another attendees", CheckIfEnrolled);
         }
         else if (!(Registercheck(attendeeID, eventID, status, registrations)))
         {
-            returnOptions("Not Enrolled!", "or (2) to check another attendees", function);
+            returnOptions("Not Enrolled!", "or (2) to check another attendees", CheckIfEnrolled);
         }
     }
 }
 
-////////////////////////////////////////////////////////////////events statistics
+// ----------------------------------------------------- 
+//events statistics
 
 void evenstat()
 {
@@ -381,7 +387,8 @@ void evenstat()
     }
 }
 
-//////////////////////////////////////////////////////////// the attendee registerations
+// ----------------------------------------------------- 
+//the attendee registerations
 
 void ListofEnrolledEvents()
 {
@@ -392,7 +399,7 @@ void ListofEnrolledEvents()
     std::cout << "Enter the ID: ";
     attendeeID = ValidInput(1, 9999999999);
     
-    for (int i = 0; i < RegistrationLimit;i++)
+    for (int i = 0; i < RegistrationLimit;++i)
     {
         if(attendeeID == registrations[i].attendeeID)
         {
@@ -404,20 +411,10 @@ void ListofEnrolledEvents()
     returnOptions("Done!", "or (2) to check another event", function);        
 }
 
-/////////////////////////////////////////////////////////////search
+// ----------------------------------------------------- 
+//search
 
-std::string attendeeNameByID(size_t ID)
-{
-	// Notation ++i is generally preferred over i++ for loop counters
-    for(int i =0;i< AttendeesLimit;i++)
-    {
-        if(ID == AttendeesList[i].ID)
-        {
-            return AttendeesList[i].name;
-        }
-    }
-   return "Not found";
-}
+
 
 std::string returnAttendeeActive(Attendee_Active ID)
 {
@@ -462,26 +459,28 @@ void EnrolledEvents(size_t ID)
 // Logic is over engineered here, you can just call the function directly in the main loop
 void attendeeSearch()
 {
-    void (*function)() = &attendeeSearch;
     size_t ID = 0;
     std::cout << "Enter the ID: ";
     ID = ValidInput(1, 99999999);
 
     if (!(ID_Exists_attendees(ID)))
     {
-        returnOptions("This ID doesn't exist!", "or (2) to check another attendees", function);
+        returnOptions("This ID doesn't exist!", "or (2) to check another attendees", attendeeSearch);
 
     }
 
 	// Do you need to call attendeeIndexByID twice? you can store the result in a variable
-    std::cout << "Name: "<<attendeeNameByID(ID)<<std::endl;
+
+    size_t Index = attendeeIndexByID(ID);
+
+    std::cout << "Name: "<< AttendeesList[Index].name <<std::endl;
     std::cout << "Status: " << returnAttendeeActive(AttendeesList[attendeeIndexByID(ID)].active) << std::endl;
     std::cout << "Enrolled Events:"<<std::endl;
     EnrolledEvents(ID);
 
 
 
-    returnOptions("Done!", "or (2) to check another attendees", function);
+    returnOptions("Done!", "or (2) to check another attendees", attendeeSearch);
     
 }
 
@@ -592,7 +591,8 @@ void manageEvent()
 
 }
 
-///////////////////////////////////////////////////////show events or attendees
+// ----------------------------------------------------- 
+//show events or attendees
 
 
 std::string returneventsActive(Event_Active ID)
@@ -658,7 +658,7 @@ int main()
         }
         else if (option == 4)
         {
-            Erolled();
+            CheckIfEnrolled();
         }
         else if (option == 5)
         {
