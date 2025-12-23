@@ -1,0 +1,5 @@
+id,title,capacity,status
+1,Tech Conference,20,ACTIVE
+2,Music Festival,150,NOT_ACTIVE
+3,Art Workshop,20,ACTIVE
+4,Swimming,50,CANCELED

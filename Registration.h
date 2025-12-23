@@ -1,7 +1,12 @@
 #pragma once
 #include <iostream>
-enum Regist_status { Enrolled, NotEnrolled };
 
+enum Regist_status { 
+    Enrolled,//the attendee is enrolled to the event
+    NotEnrolled //the attendee is not enrolled to the event
+};
+
+//sturcture for registration array
 struct Registration {
     size_t attendeeID = 0;
     size_t eventID = 0;
@@ -9,71 +14,6 @@ struct Registration {
 };
 
 
-// How do you know the limit of registrations?
-// where are they defined? No includes here?
-const size_t RegistrationLimit = AttendeesLimit * EventsLimits;
 
 
-// Again you are creating a global array in a header file, is it really needed here? and why?
-Registration registrations[RegistrationLimit] =  {
-    {1, 1, Enrolled},
-    {1, 2, Enrolled},
-
-    {2, 2, Enrolled},
-    {2, 4, Enrolled},
-
-    {3, 1, Enrolled},
-    {3, 3, Enrolled},
-
-    {4, 1, Enrolled},
-    {4, 2, Enrolled},
-    {4, 3, Enrolled},
-
-    {5, 4, Enrolled},
-
-    {6, 1, Enrolled},
-    {6, 4, Enrolled},
-
-    {7, 2, Enrolled},
-    {7, 3, Enrolled},
-
-    {8, 1, Enrolled},
-    {8, 4, Enrolled},
-
-    {9, 3, Enrolled},
-    {9, 4, Enrolled},
-
-    {10, 1, Enrolled},
-    {10, 2, Enrolled},
-    {10, 4, Enrolled},
-
-    {11, 1, Enrolled},
-    {11, 3, Enrolled},
-
-    {12, 2, Enrolled},
-    {12, 3, Enrolled},
-
-    {13, 1, Enrolled},
-
-    {14, 2, Enrolled},
-    {14, 4, Enrolled},
-
-    {15, 1, Enrolled},
-
-    {16, 1, Enrolled},
-    {16, 4, Enrolled},
-
-    {17, 2, Enrolled},
-    {17, 1, Enrolled},
-
-    {18, 1, Enrolled},
-    {18, 2, Enrolled},
-
-    {19, 1, Enrolled},
-
-    {20, 1, Enrolled},
-    {20, 2, Enrolled},
-    {20, 1, Enrolled},
-    {20, 4, Enrolled}
-};
 
