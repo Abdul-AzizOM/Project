@@ -1,3 +1,4 @@
+//TODO:I recommend arranging the includes alphabitaclly for better readability
 #include <iostream>
 #include <cstdlib>
 #include <functional>
@@ -12,19 +13,26 @@
 // -----------------------------------------------------  
 // constants
 
+// TODO:try to split the functions into smaller files for better organization
+// TODO:The functions can be grouped based on their functionality into separate files
+
+//TODO: const to constexpr where applicable, also explain what these constants represent
 const size_t maxID = 9999999;
 const size_t AttendeesLimit = 70; //The max capacity of attendees
 const size_t EventsLimits = 10;
 const size_t RegistrationLimit = AttendeesLimit * EventsLimits;//each attendee has the chance to take a part in each event
 
 
-//arrays 
+//TODO: these should be in a class or namespace to avoid global namespace pollution
+//TODO: for your level maybe in main() is acceptable but in larger projects this will lead to name clashes
 Event events[EventsLimits];
 Attendee AttendeesList[AttendeesLimit];
 Registration registrations[RegistrationLimit];
 // -----------------------------------------------------  
 // add a limit for the attendee ,events and registration
 
+
+//TODO: change Menu name to displayMenu for better clarity 
 void Menu()
 {
     std::cout << "Select an option: (Number)\n";
@@ -922,8 +930,11 @@ int main()
         system("cls"); // Clears the console on Windows
         Menu();
         size_t option = 0;
+		// TODO: avoid magic numbers, use named constants instead
+		// get user option seperately from the validation point.
         option = ValidInput(1, 10);
 
+		// TODO: avoid long if-else chains, use switch-case
         if (option == 1)
         {
             addattendees();
